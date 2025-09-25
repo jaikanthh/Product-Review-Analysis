@@ -1,0 +1,200 @@
+# Data Engineering Pipeline Configuration
+# Product Review Analysis Platform
+
+# Data Generation Settings
+data_generation:
+  sample_size:
+    users: 10000
+    products: 1000
+    reviews: 50000
+  
+  review_distribution:
+    rating_1: 0.05  # 5% 1-star reviews
+    rating_2: 0.10  # 10% 2-star reviews
+    rating_3: 0.20  # 20% 3-star reviews
+    rating_4: 0.35  # 35% 4-star reviews
+    rating_5: 0.30  # 30% 5-star reviews
+  
+  categories:
+    - Electronics
+    - Clothing
+    - Books
+    - Home & Garden
+    - Sports & Outdoors
+    - Beauty & Personal Care
+    - Toys & Games
+    - Automotive
+
+# Data Ingestion Configuration
+ingestion:
+  batch_processing:
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    chunk_size: 1000
+    max_retries: 3
+    timeout_seconds: 300
+  
+  streaming:
+    buffer_size: 100
+    flush_interval_seconds: 30
+    max_batch_size: 500
+  
+  data_quality:
+    enable_validation: true
+    reject_threshold: 0.05  # Reject batch if >5% invalid records
+    required_fields:
+      - user_id
+      - product_id
+      - rating
+      - review_text
+      - timestamp
+
+# Storage Configuration
+storage:
+  data_lake:
+    partitioning:
+      - year
+      - month
+      - day
+    file_format: "parquet"
+    compression: "snappy"
+  
+  warehouse:
+    fact_tables:
+      - fact_reviews
+      - fact_user_activity
+    
+    dimension_tables:
+      - dim_users
+      - dim_products
+      - dim_date
+      - dim_categories
+  
+  retention_policy:
+    raw_data_days: 365
+    processed_data_days: 1095  # 3 years
+    aggregated_data_days: 2555  # 7 years
+
+# Transformation Configuration
+transformation:
+  sentiment_analysis:
+    model: "textblob"  # Options: textblob, vader, custom
+    confidence_threshold: 0.6
+    
+  data_cleaning:
+    remove_duplicates: true
+    handle_missing_values: true
+    standardize_text: true
+    remove_spam: true
+    
+  feature_engineering:
+    review_length_buckets: [0, 50, 150, 500, 1000]
+    user_activity_metrics: true
+    product_popularity_scores: true
+    seasonal_trends: true
+
+# Data Quality Rules
+data_quality:
+  validation_rules:
+    rating_range: [1, 5]
+    review_text_min_length: 10
+    review_text_max_length: 5000
+    user_id_format: "^[A-Za-z0-9_-]+$"
+    product_id_format: "^PROD_[0-9]+$"
+  
+  monitoring:
+    enable_alerts: true
+    alert_thresholds:
+      data_freshness_hours: 6
+      error_rate_percent: 5
+      processing_delay_minutes: 30
+  
+  data_profiling:
+    enable: true
+    frequency: "daily"
+    metrics:
+      - completeness
+      - uniqueness
+      - validity
+      - consistency
+
+# Analytics Configuration
+analytics:
+  dashboard:
+    refresh_interval_minutes: 15
+    cache_duration_minutes: 60
+    
+  kpis:
+    - average_rating_by_category
+    - review_volume_trends
+    - sentiment_distribution
+    - top_rated_products
+    - user_engagement_metrics
+    
+  reports:
+    daily_summary: true
+    weekly_trends: true
+    monthly_insights: true
+
+# Monitoring & Alerting
+monitoring:
+  logging:
+    level: "INFO"
+    format: "json"
+    retention_days: 30
+    
+  metrics:
+    collection_interval_seconds: 60
+    retention_days: 90
+    
+  alerts:
+    email_notifications: false  # Set to true in production
+    slack_notifications: false  # Set to true in production
+    
+  health_checks:
+    database_connectivity: true
+    data_freshness: true
+    pipeline_status: true
+    resource_utilization: true
+
+# Security Configuration
+security:
+  data_encryption:
+    at_rest: false  # Enable in production
+    in_transit: true
+    
+  access_control:
+    enable_rbac: false  # Enable in production
+    session_timeout_minutes: 60
+    
+  data_privacy:
+    anonymize_pii: true
+    data_masking: true
+    gdpr_compliance: true
+
+# Performance Tuning
+performance:
+  parallel_processing:
+    max_workers: 4
+    chunk_size: 1000
+    
+  caching:
+    enable: true
+    ttl_seconds: 3600
+    max_size_mb: 512
+    
+  optimization:
+    enable_indexing: true
+    query_optimization: true
+    connection_pooling: true
+
+# Development Settings
+development:
+  debug_mode: true
+  sample_data_only: true
+  skip_external_apis: true
+  mock_services: true
+  
+  testing:
+    run_unit_tests: true
+    run_integration_tests: false
+    generate_test_data: true

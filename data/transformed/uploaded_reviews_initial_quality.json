@@ -1,0 +1,201 @@
+{
+  "dataset_name": "uploaded_reviews_initial",
+  "total_rows": 148562,
+  "total_columns": 16,
+  "overall_score": 0.8454935902182256,
+  "critical_issues": 1,
+  "high_issues": 0,
+  "medium_issues": 0,
+  "low_issues": 0,
+  "timestamp": "2025-09-26T01:05:11.958677",
+  "check_results": [
+    {
+      "rule_name": "no_null_values",
+      "check_type": "completeness",
+      "severity": "high",
+      "passed": "True",
+      "pass_rate": 0.9999596128215829,
+      "failed_count": "6",
+      "total_count": 148562,
+      "details": {
+        "columns_checked": [
+          "marketplace",
+          "user_id",
+          "review_id",
+          "product_id",
+          "product_parent",
+          "product_title",
+          "product_category",
+          "rating",
+          "helpful_votes",
+          "total_votes",
+          "vine",
+          "verified_purchase",
+          "review_headline",
+          "review_text",
+          "created_at",
+          "title"
+        ],
+        "null_counts": {
+          "marketplace": 0,
+          "user_id": 0,
+          "review_id": 0,
+          "product_id": 0,
+          "product_parent": 0,
+          "product_title": 0,
+          "product_category": 0,
+          "rating": 0,
+          "helpful_votes": 0,
+          "total_votes": 0,
+          "vine": 0,
+          "verified_purchase": 0,
+          "review_headline": 5,
+          "review_text": 0,
+          "created_at": 1,
+          "title": 0
+        },
+        "total_nulls": "6"
+      }
+    },
+    {
+      "rule_name": "no_empty_strings",
+      "check_type": "completeness",
+      "severity": "medium",
+      "passed": "True",
+      "pass_rate": 1.0,
+      "failed_count": "0",
+      "total_count": 148562,
+      "details": {
+        "columns_checked": [
+          "marketplace",
+          "review_id",
+          "product_id",
+          "product_parent",
+          "product_title",
+          "product_category",
+          "helpful_votes",
+          "vine",
+          "verified_purchase",
+          "review_headline",
+          "review_text",
+          "title"
+        ],
+        "empty_counts": {
+          "marketplace": "0",
+          "review_id": "0",
+          "product_id": "0",
+          "product_parent": "0",
+          "product_title": "0",
+          "product_category": "0",
+          "helpful_votes": "0",
+          "vine": "0",
+          "verified_purchase": "0",
+          "review_headline": "0",
+          "review_text": "0",
+          "title": "0"
+        },
+        "total_empty": "0"
+      }
+    },
+    {
+      "rule_name": "valid_email_format",
+      "check_type": "validity",
+      "severity": "high",
+      "passed": "True",
+      "pass_rate": 1.0,
+      "failed_count": "0",
+      "total_count": 148562,
+      "details": {
+        "message": "No email columns found"
+      }
+    },
+    {
+      "rule_name": "valid_date_format",
+      "check_type": "validity",
+      "severity": "high",
+      "passed": "True",
+      "pass_rate": 0.9999932688035972,
+      "failed_count": "1",
+      "total_count": 148562,
+      "details": {
+        "columns_checked": [
+          "created_at"
+        ],
+        "invalid_counts": {
+          "created_at": "1"
+        }
+      }
+    },
+    {
+      "rule_name": "valid_rating_range",
+      "check_type": "validity",
+      "severity": "critical",
+      "passed": "True",
+      "pass_rate": 1.0,
+      "failed_count": "0",
+      "total_count": 148562,
+      "details": {
+        "columns_checked": [
+          "rating"
+        ],
+        "invalid_counts": {
+          "rating": "0"
+        },
+        "valid_range": "[1, 5]"
+      }
+    },
+    {
+      "rule_name": "consistent_data_types",
+      "check_type": "consistency",
+      "severity": "high",
+      "passed": true,
+      "pass_rate": 1.0,
+      "failed_count": 0,
+      "total_count": 148562,
+      "details": {
+        "type_issues": [],
+        "total_issues": 0
+      }
+    },
+    {
+      "rule_name": "unique_identifiers",
+      "check_type": "uniqueness",
+      "severity": "critical",
+      "passed": "False",
+      "pass_rate": 0.011200710814340141,
+      "failed_count": "146898",
+      "total_count": 148562,
+      "details": {
+        "columns_checked": [
+          "user_id",
+          "review_id",
+          "product_id"
+        ],
+        "duplicate_counts": {
+          "user_id": "5857",
+          "review_id": "0",
+          "product_id": "146785"
+        },
+        "total_duplicates": "152642"
+      }
+    },
+    {
+      "rule_name": "reasonable_dates",
+      "check_type": "timeliness",
+      "severity": "medium",
+      "passed": "True",
+      "pass_rate": 0.9999932688035972,
+      "failed_count": "1",
+      "total_count": 148562,
+      "details": {
+        "columns_checked": [
+          "created_at"
+        ],
+        "invalid_counts": {
+          "created_at": "1"
+        },
+        "valid_range": "[1900-01-01, 2026-09-26]"
+      }
+    }
+  ]
+}
