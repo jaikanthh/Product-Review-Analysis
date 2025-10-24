@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Dashboard Launcher Script
+Review Insights Platform Dashboard Launcher
 
-This script launches the Product Review Analytics Dashboard with proper configuration.
+This script launches the Review Insights Platform Dashboard with proper configuration and environment setup.
 """
 
 import os

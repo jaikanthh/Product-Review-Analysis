@@ -206,12 +206,33 @@ class TransformationOrchestrator:
             logger.warning(f"Text column '{self.config.text_column}' not found. Skipping sentiment analysis.")
             return df, {}
         
-        # Analyze sentiment
-        df_with_sentiment = self.sentiment_analyzer.analyze_dataframe(
-            df, 
-            text_column=self.config.text_column,
-            method='ensemble'
-        )
+        # Determine batch size and parallel flags
+        batch_size = max(500, int(self.config.batch_size)) if hasattr(self.config, 'batch_size') else 1000
+        parallel = getattr(self.config, 'parallel_processing', True)
+        
+        # Determine optimal number of workers from CPU cores
+        import os
+        max_workers = os.cpu_count() or 8
+        # Cap to a reasonable upper bound
+        if max_workers > 16:
+            max_workers = 16
+        
+        df_with_sentiment = df
+        try:
+            df_with_sentiment = self.sentiment_analyzer.analyze_dataframe_chunked(
+                df,
+                text_column=self.config.text_column,
+                batch_size=batch_size,
+                parallel=parallel,
+                progress_cb=None,
+                max_workers=max_workers
+            )
+        except Exception as e:
+            logger.warning(f"Chunked sentiment analysis failed ({e}); falling back to standard method.")
+            df_with_sentiment = self.sentiment_analyzer.analyze_dataframe(
+                df,
+                text_column=self.config.text_column
+            )
         
         # Calculate sentiment statistics
         sentiment_stats = {}
@@ -221,13 +242,7 @@ class TransformationOrchestrator:
             sentiment_stats['total_analyzed'] = len(df_with_sentiment)
             
             if 'sentiment_score' in df_with_sentiment.columns:
-                sentiment_stats['avg_score'] = df_with_sentiment['sentiment_score'].mean()
-                sentiment_stats['score_std'] = df_with_sentiment['sentiment_score'].std()
-        
-        logger.info(f"Sentiment analysis completed for {len(df_with_sentiment)} reviews")
-        if sentiment_stats.get('distribution'):
-            for label, count in sentiment_stats['distribution'].items():
-                logger.info(f"  • {label}: {count} ({count/len(df_with_sentiment)*100:.1f}%)")
+                sentiment_stats['average_score'] = float(df_with_sentiment['sentiment_score'].mean())
         
         return df_with_sentiment, sentiment_stats
     

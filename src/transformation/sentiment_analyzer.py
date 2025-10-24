@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from datetime import datetime
 import pickle
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Text processing libraries
 import nltk
@@ -32,8 +33,16 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
 from sklearn.pipeline import Pipeline
 
-# Download required NLTK data
+# Download required NLTK data with SSL context fix
 try:
+    import ssl
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+    
     nltk.download('vader_lexicon', quiet=True)
     nltk.download('punkt', quiet=True)
     nltk.download('stopwords', quiet=True)
@@ -41,7 +50,8 @@ try:
     nltk.download('averaged_perceptron_tagger', quiet=True)
     nltk.download('maxent_ne_chunker', quiet=True)
     nltk.download('words', quiet=True)
-except:
+except Exception as e:
+    logger.warning(f"NLTK download failed: {e}. Some features may not work properly.")
     pass
 
 # Setup logging
@@ -338,7 +348,7 @@ class SentimentAnalyzer:
         # Try to load pre-trained ML model
         if self.config.model_type in ["ml", "ensemble"]:
             self.ml_analyzer.load_model()
-        
+    
         logger.info(f"Sentiment analyzer initialized with model type: {self.config.model_type}")
     
     def analyze_text(self, text: str) -> SentimentResult:
@@ -447,30 +457,128 @@ class SentimentAnalyzer:
         logger.info(f"Sentiment analysis completed for {len(texts)} texts")
         return results
     
+    def analyze_dataframe_chunked(self, df: pd.DataFrame, text_column: str, 
+                                  batch_size: int = 1000, parallel: bool = True,
+                                  progress_cb=None, max_workers: int = 8) -> pd.DataFrame:
+        """Analyze sentiment for a DataFrame in chunks, with optional parallelism and progress callback."""
+        total = len(df)
+        if total == 0:
+            return df.copy()
+        
+        # Prepare structures
+        result_df = df.copy()
+        sentiments = {
+            'label': [None] * total,
+            'score': [0.0] * total,
+            'confidence': [0.0] * total,
+            'emotions': [None] * total,
+            'keywords': [None] * total,
+            'word_count': [0] * total,
+            'sentence_count': [0] * total,
+        }
+        
+        # Build chunks of indices
+        indices = list(range(total))
+        chunks = [indices[i:i+batch_size] for i in range(0, total, batch_size)]
+        texts = df[text_column].fillna("").tolist()
+        
+        # Optional Streamlit progress
+        st_progress = None
+        try:
+            import streamlit as st
+            st_progress = st.progress(0.0)
+        except Exception:
+            st_progress = None
+        
+        def update_progress(done_count):
+            if progress_cb:
+                try:
+                    progress_cb(done_count / total)
+                except Exception:
+                    pass
+            if st_progress:
+                try:
+                    st_progress.progress(min(done_count / total, 1.0))
+                except Exception:
+                    pass
+        
+        done = 0
+        
+        if parallel:
+            # Parallel processing with thread pool
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_chunk = {}
+                for chunk in chunks:
+                    chunk_texts = [texts[i] for i in chunk]
+                    future = executor.submit(self.analyze_batch, chunk_texts)
+                    future_to_chunk[future] = chunk
+                
+                for future in as_completed(future_to_chunk):
+                    chunk = future_to_chunk[future]
+                    try:
+                        results = future.result()
+                    except Exception:
+                        # Fallback: empty results
+                        results = []
+                    # Write results into arrays
+                    for local_idx, idx in enumerate(chunk):
+                        if local_idx < len(results):
+                            r = results[local_idx]
+                            sentiments['label'][idx] = r.sentiment_label
+                            sentiments['score'][idx] = r.sentiment_score
+                            sentiments['confidence'][idx] = r.confidence
+                            sentiments['emotions'][idx] = r.emotions
+                            sentiments['keywords'][idx] = r.keywords
+                            sentiments['word_count'][idx] = r.word_count
+                            sentiments['sentence_count'][idx] = r.sentence_count
+                    done += len(chunk)
+                    update_progress(done)
+        else:
+            # Sequential processing
+            for chunk in chunks:
+                chunk_texts = [texts[i] for i in chunk]
+                results = self.analyze_batch(chunk_texts)
+                for local_idx, idx in enumerate(chunk):
+                    r = results[local_idx]
+                    sentiments['label'][idx] = r.sentiment_label
+                    sentiments['score'][idx] = r.sentiment_score
+                    sentiments['confidence'][idx] = r.confidence
+                    sentiments['emotions'][idx] = r.emotions
+                    sentiments['keywords'][idx] = r.keywords
+                    sentiments['word_count'][idx] = r.word_count
+                    sentiments['sentence_count'][idx] = r.sentence_count
+                done += len(chunk)
+                update_progress(done)
+        
+        # Assign results to dataframe
+        result_df['sentiment_label'] = sentiments['label']
+        result_df['sentiment_score'] = sentiments['score']
+        result_df['sentiment_confidence'] = sentiments['confidence']
+        result_df['emotions'] = sentiments['emotions']
+        result_df['keywords'] = sentiments['keywords']
+        result_df['word_count'] = sentiments['word_count']
+        result_df['sentence_count'] = sentiments['sentence_count']
+        
+        # Add individual emotion columns if any
+        first_emotions = next((e for e in sentiments['emotions'] if isinstance(e, dict) and e), None)
+        if first_emotions:
+            for emotion in first_emotions.keys():
+                result_df[f'emotion_{emotion}'] = [ (e or {}).get(emotion, 0.0) for e in sentiments['emotions'] ]
+        
+        # Clear progress
+        update_progress(total)
+        
+        return result_df
+    
     def analyze_dataframe(self, df: pd.DataFrame, text_column: str) -> pd.DataFrame:
-        """Analyze sentiment for DataFrame with text column"""
-        logger.info(f"Analyzing sentiment for DataFrame with {len(df)} rows")
-        
-        # Analyze all texts
-        results = self.analyze_batch(df[text_column].fillna("").tolist())
-        
-        # Add results to DataFrame
-        df_result = df.copy()
-        df_result['sentiment_label'] = [r.sentiment_label for r in results]
-        df_result['sentiment_score'] = [r.sentiment_score for r in results]
-        df_result['sentiment_confidence'] = [r.confidence for r in results]
-        df_result['emotions'] = [r.emotions for r in results]
-        df_result['keywords'] = [r.keywords for r in results]
-        df_result['word_count'] = [r.word_count for r in results]
-        df_result['sentence_count'] = [r.sentence_count for r in results]
-        
-        # Add individual emotion columns
-        if results and results[0].emotions:
-            for emotion in results[0].emotions.keys():
-                df_result[f'emotion_{emotion}'] = [r.emotions.get(emotion, 0.0) for r in results]
-        
-        logger.info("Sentiment analysis completed for DataFrame")
-        return df_result
+        """Simple wrapper for analyze_dataframe_chunked with default parameters"""
+        return self.analyze_dataframe_chunked(
+            df=df, 
+            text_column=text_column, 
+            batch_size=1000, 
+            parallel=True, 
+            max_workers=8
+        )
     
     def train_ml_model(self, df: pd.DataFrame, text_column: str, 
                       label_column: str) -> Dict[str, float]:

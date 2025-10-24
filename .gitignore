@@ -252,3 +252,50 @@ service-account-key.json
 # Local development
 local_config.py
 dev_settings.py
+
+# Streamlit cache and session state
+.streamlit/
+*.streamlit/
+
+# Data pipeline artifacts
+pipeline_cache/
+*.cache
+.cache/
+
+# Machine learning artifacts
+mlruns/
+.mlflow/
+wandb/
+tensorboard_logs/
+
+# Backup files
+*.bak
+*.backup
+*_backup.*
+
+# Test artifacts
+.pytest_cache/
+test_results/
+coverage_reports/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Node modules (if any frontend components)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python virtual environments
+.Python
+pyvenv.cfg
+
+# Jupyter Lab
+.jupyter/
+.ipython/
+
+# Data quality reports
+data_quality_reports/
+validation_reports/

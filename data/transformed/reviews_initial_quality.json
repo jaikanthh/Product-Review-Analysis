@@ -1,60 +1,64 @@
 {
   "dataset_name": "reviews_initial",
-  "total_rows": 148562,
-  "total_columns": 16,
-  "overall_score": 0.8454935902182256,
+  "total_rows": 1000,
+  "total_columns": 18,
+  "overall_score": 0.8551562500000001,
   "critical_issues": 1,
   "high_issues": 0,
   "medium_issues": 0,
   "low_issues": 0,
-  "timestamp": "2025-09-26T01:05:20.541189",
+  "timestamp": "2025-10-24T19:16:45.385824",
   "check_results": [
     {
       "rule_name": "no_null_values",
       "check_type": "completeness",
       "severity": "high",
       "passed": "True",
-      "pass_rate": 0.9999596128215829,
-      "failed_count": "6",
-      "total_count": 148562,
+      "pass_rate": 1.0,
+      "failed_count": "0",
+      "total_count": 1000,
       "details": {
         "columns_checked": [
-          "marketplace",
-          "user_id",
           "review_id",
+          "user_id",
           "product_id",
-          "product_parent",
-          "product_title",
-          "product_category",
           "rating",
+          "title",
+          "review_text",
           "helpful_votes",
           "total_votes",
-          "vine",
           "verified_purchase",
-          "review_headline",
-          "review_text",
+          "review_date",
+          "language",
+          "sentiment_score",
+          "word_count",
+          "contains_images",
+          "contains_video",
+          "is_spam",
           "created_at",
-          "title"
+          "updated_at"
         ],
         "null_counts": {
-          "marketplace": 0,
-          "user_id": 0,
           "review_id": 0,
+          "user_id": 0,
           "product_id": 0,
-          "product_parent": 0,
-          "product_title": 0,
-          "product_category": 0,
           "rating": 0,
+          "title": 0,
+          "review_text": 0,
           "helpful_votes": 0,
           "total_votes": 0,
-          "vine": 0,
           "verified_purchase": 0,
-          "review_headline": 5,
-          "review_text": 0,
-          "created_at": 1,
-          "title": 0
+          "review_date": 0,
+          "language": 0,
+          "sentiment_score": 0,
+          "word_count": 0,
+          "contains_images": 0,
+          "contains_video": 0,
+          "is_spam": 0,
+          "created_at": 0,
+          "updated_at": 0
         },
-        "total_nulls": "6"
+        "total_nulls": "0"
       }
     },
     {
@@ -64,35 +68,29 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 148562,
+      "total_count": 1000,
       "details": {
         "columns_checked": [
-          "marketplace",
           "review_id",
+          "user_id",
           "product_id",
-          "product_parent",
-          "product_title",
-          "product_category",
-          "helpful_votes",
-          "vine",
-          "verified_purchase",
-          "review_headline",
+          "title",
           "review_text",
-          "title"
+          "review_date",
+          "language",
+          "created_at",
+          "updated_at"
         ],
         "empty_counts": {
-          "marketplace": "0",
           "review_id": "0",
+          "user_id": "0",
           "product_id": "0",
-          "product_parent": "0",
-          "product_title": "0",
-          "product_category": "0",
-          "helpful_votes": "0",
-          "vine": "0",
-          "verified_purchase": "0",
-          "review_headline": "0",
+          "title": "0",
           "review_text": "0",
-          "title": "0"
+          "review_date": "0",
+          "language": "0",
+          "created_at": "0",
+          "updated_at": "0"
         },
         "total_empty": "0"
       }
@@ -104,7 +102,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 148562,
+      "total_count": 1000,
       "details": {
         "message": "No email columns found"
       }
@@ -114,15 +112,21 @@
       "check_type": "validity",
       "severity": "high",
       "passed": "True",
-      "pass_rate": 0.9999932688035972,
-      "failed_count": "1",
-      "total_count": 148562,
+      "pass_rate": 1.0,
+      "failed_count": "0",
+      "total_count": 1000,
       "details": {
         "columns_checked": [
-          "created_at"
+          "review_date",
+          "sentiment_score",
+          "created_at",
+          "updated_at"
         ],
         "invalid_counts": {
-          "created_at": "1"
+          "review_date": "0",
+          "sentiment_score": "0",
+          "created_at": "0",
+          "updated_at": "0"
         }
       }
     },
@@ -133,7 +137,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 148562,
+      "total_count": 1000,
       "details": {
         "columns_checked": [
           "rating"
@@ -151,7 +155,7 @@
       "passed": true,
       "pass_rate": 1.0,
       "failed_count": 0,
-      "total_count": 148562,
+      "total_count": 1000,
       "details": {
         "type_issues": [],
         "total_issues": 0
@@ -162,21 +166,21 @@
       "check_type": "uniqueness",
       "severity": "critical",
       "passed": "False",
-      "pass_rate": 0.011200710814340141,
-      "failed_count": "146898",
-      "total_count": 148562,
+      "pass_rate": 0.073,
+      "failed_count": "927",
+      "total_count": 1000,
       "details": {
         "columns_checked": [
-          "user_id",
           "review_id",
+          "user_id",
           "product_id"
         ],
         "duplicate_counts": {
-          "user_id": "5857",
           "review_id": "0",
-          "product_id": "146785"
+          "user_id": "801",
+          "product_id": "900"
         },
-        "total_duplicates": "152642"
+        "total_duplicates": "1701"
       }
     },
     {
@@ -184,17 +188,23 @@
       "check_type": "timeliness",
       "severity": "medium",
       "passed": "True",
-      "pass_rate": 0.9999932688035972,
-      "failed_count": "1",
-      "total_count": 148562,
+      "pass_rate": 1.0,
+      "failed_count": "0",
+      "total_count": 1000,
       "details": {
         "columns_checked": [
-          "created_at"
+          "review_date",
+          "sentiment_score",
+          "created_at",
+          "updated_at"
         ],
         "invalid_counts": {
-          "created_at": "1"
+          "review_date": "0",
+          "sentiment_score": "0",
+          "created_at": "0",
+          "updated_at": "0"
         },
-        "valid_range": "[1900-01-01, 2026-09-26]"
+        "valid_range": "[1900-01-01, 2026-10-24]"
       }
     }
   ]

@@ -175,8 +175,8 @@ class DashboardConfig:
     """Main configuration class for the dashboard."""
     
     # Page configuration
-    page_title: str = "Product Review Analytics Dashboard"
-    page_icon: str = "📊"
+    page_title: str = "Review Insights Platform Dashboard"
+    page_icon: str | None = None
     layout: str = "wide"
     sidebar_state: str = "expanded"
     

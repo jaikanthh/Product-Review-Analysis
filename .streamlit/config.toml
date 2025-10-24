@@ -9,9 +9,13 @@ headless = true
 port = 8501
 enableCORS = false
 enableXsrfProtection = false
+maxUploadSize = 1024  # MB
+maxMessageSize = 1024  # MB
 
 [theme]
-primaryColor = "#FF6B6B"
+base = "light"
+primaryColor = "#2B6CB0"
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F2F6"
-textColor = "#262730"
+secondaryBackgroundColor = "#F7FAFC"
+textColor = "#1A202C"
+font = "sans serif"

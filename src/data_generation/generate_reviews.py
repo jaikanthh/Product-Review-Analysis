@@ -87,6 +87,22 @@ class ReviewDataGenerator:
         
         df_users = pd.DataFrame(users)
         
+        # Ensure consistent data types
+        df_users['user_id'] = df_users['user_id'].astype(str)
+        df_users['username'] = df_users['username'].astype(str)
+        df_users['email'] = df_users['email'].astype(str)
+        df_users['first_name'] = df_users['first_name'].astype(str)
+        df_users['last_name'] = df_users['last_name'].astype(str)
+        df_users['date_of_birth'] = pd.to_datetime(df_users['date_of_birth'])
+        df_users['gender'] = df_users['gender'].astype(str)
+        df_users['country'] = df_users['country'].astype(str)
+        df_users['city'] = df_users['city'].astype(str)
+        df_users['registration_date'] = pd.to_datetime(df_users['registration_date'])
+        df_users['is_verified'] = df_users['is_verified'].astype(bool)
+        df_users['total_orders'] = df_users['total_orders'].astype(int)
+        df_users['created_at'] = pd.to_datetime(df_users['created_at'])
+        df_users['updated_at'] = pd.to_datetime(df_users['updated_at'])
+        
         # Save to multiple formats (simulating different source systems)
         df_users.to_csv('data/raw/users/users.csv', index=False)
         df_users.to_json('data/raw/users/users.json', orient='records', date_format='iso')
@@ -126,12 +142,36 @@ class ReviewDataGenerator:
         
         df_products = pd.DataFrame(products)
         
+        # Ensure consistent data types
+        df_products['product_id'] = df_products['product_id'].astype(str)
+        df_products['name'] = df_products['name'].astype(str)
+        df_products['category'] = df_products['category'].astype(str)
+        df_products['subcategory'] = df_products['subcategory'].astype(str)
+        df_products['brand'] = df_products['brand'].astype(str)
+        df_products['price'] = df_products['price'].astype(float)
+        df_products['description'] = df_products['description'].astype(str)
+        df_products['weight_kg'] = df_products['weight_kg'].astype(float)
+        df_products['dimensions'] = df_products['dimensions'].astype(str)
+        df_products['color'] = df_products['color'].astype(str)
+        df_products['material'] = df_products['material'].astype(str)
+        df_products['manufacturer'] = df_products['manufacturer'].astype(str)
+        df_products['model_number'] = df_products['model_number'].astype(str)
+        df_products['release_date'] = pd.to_datetime(df_products['release_date'])
+        df_products['is_active'] = df_products['is_active'].astype(bool)
+        df_products['stock_quantity'] = df_products['stock_quantity'].astype(int)
+        df_products['created_at'] = pd.to_datetime(df_products['created_at'])
+        df_products['updated_at'] = pd.to_datetime(df_products['updated_at'])
+        
         # Save to multiple formats
         df_products.to_csv('data/raw/products/products.csv', index=False)
         df_products.to_json('data/raw/products/products.json', orient='records', date_format='iso')
         
         # Save as parquet (simulating data lake format)
-        df_products.to_parquet('data/raw/products/products.parquet')
+        try:
+            df_products.to_parquet('data/raw/products/products.parquet', engine='pyarrow')
+        except Exception as e:
+            print(f"Warning: Could not save products parquet file: {e}")
+            df_products.to_csv('data/raw/products/products_backup.csv', index=False)
         
         print(f"Generated {len(df_products)} products")
         return df_products
@@ -190,10 +230,37 @@ class ReviewDataGenerator:
         
         df_reviews = pd.DataFrame(reviews)
         
+        # Ensure consistent data types to prevent PyArrow conversion errors
+        df_reviews['review_id'] = df_reviews['review_id'].astype(str)
+        df_reviews['user_id'] = df_reviews['user_id'].astype(str)
+        df_reviews['product_id'] = df_reviews['product_id'].astype(str)
+        df_reviews['rating'] = df_reviews['rating'].astype(int)
+        df_reviews['title'] = df_reviews['title'].astype(str)
+        df_reviews['review_text'] = df_reviews['review_text'].astype(str)
+        df_reviews['helpful_votes'] = df_reviews['helpful_votes'].astype(int)
+        df_reviews['total_votes'] = df_reviews['total_votes'].astype(int)
+        df_reviews['verified_purchase'] = df_reviews['verified_purchase'].astype(bool)
+        df_reviews['review_date'] = pd.to_datetime(df_reviews['review_date'])
+        df_reviews['language'] = df_reviews['language'].astype(str)
+        df_reviews['sentiment_score'] = df_reviews['sentiment_score'].astype(float)
+        df_reviews['word_count'] = df_reviews['word_count'].astype(int)
+        df_reviews['contains_images'] = df_reviews['contains_images'].astype(bool)
+        df_reviews['contains_video'] = df_reviews['contains_video'].astype(bool)
+        df_reviews['is_spam'] = df_reviews['is_spam'].astype(bool)
+        df_reviews['created_at'] = pd.to_datetime(df_reviews['created_at'])
+        df_reviews['updated_at'] = pd.to_datetime(df_reviews['updated_at'])
+        
         # Save to multiple formats (simulating different source systems)
         df_reviews.to_csv('data/raw/reviews/reviews.csv', index=False)
         df_reviews.to_json('data/raw/reviews/reviews.json', orient='records', date_format='iso')
-        df_reviews.to_parquet('data/raw/reviews/reviews.parquet')
+        
+        # Save parquet with explicit schema to prevent type issues
+        try:
+            df_reviews.to_parquet('data/raw/reviews/reviews.parquet', engine='pyarrow')
+        except Exception as e:
+            print(f"Warning: Could not save parquet file: {e}")
+            # Fallback to CSV if parquet fails
+            df_reviews.to_csv('data/raw/reviews/reviews_backup.csv', index=False)
         
         # Save daily partitioned data (simulating streaming data)
         self._save_partitioned_reviews(df_reviews)

@@ -23,11 +23,20 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
-# Download required NLTK data
+# Download required NLTK data with SSL context fix
 try:
+    import ssl
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+    
     nltk.download('punkt', quiet=True)
     nltk.download('stopwords', quiet=True)
-except:
+except Exception as e:
+    logger.warning(f"NLTK download failed: {e}. Some features may not work properly.")
     pass
 
 # Setup logging
@@ -560,16 +569,28 @@ class StatisticalFeatureExtractor:
         
         # Rolling statistics (if temporal data is available)
         if 'created_at' in df.columns:
-            result_df = result_df.sort_values('created_at')
-            
-            # Rolling averages for rating
-            if 'rating' in df.columns:
-                result_df['rating_rolling_mean_7d'] = result_df['rating'].rolling(
-                    window='7D', on='created_at'
-                ).mean()
-                result_df['rating_rolling_std_7d'] = result_df['rating'].rolling(
-                    window='7D', on='created_at'
-                ).std()
+            try:
+                # Ensure created_at is datetime
+                if not pd.api.types.is_datetime64_any_dtype(result_df['created_at']):
+                    result_df['created_at'] = pd.to_datetime(result_df['created_at'])
+                
+                result_df = result_df.sort_values('created_at')
+                
+                # Rolling averages for rating
+                if 'rating' in df.columns:
+                    # Use numeric window instead of time-based to avoid array shape issues
+                    result_df['rating_rolling_mean_7'] = result_df['rating'].rolling(
+                        window=7, min_periods=1
+                    ).mean()
+                    result_df['rating_rolling_std_7'] = result_df['rating'].rolling(
+                        window=7, min_periods=1
+                    ).std().fillna(0)
+            except Exception as e:
+                logger.warning(f"Could not create rolling statistics: {e}")
+                # Add default values if rolling stats fail
+                if 'rating' in df.columns:
+                    result_df['rating_rolling_mean_7'] = result_df['rating']
+                    result_df['rating_rolling_std_7'] = 0
         
         logger.info(f"Extracted statistical features")
         return result_df
