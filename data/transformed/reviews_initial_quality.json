@@ -1,13 +1,13 @@
 {
   "dataset_name": "reviews_initial",
-  "total_rows": 1000,
+  "total_rows": 900,
   "total_columns": 18,
-  "overall_score": 0.8551562500000001,
+  "overall_score": 0.8539930555555555,
   "critical_issues": 1,
   "high_issues": 0,
   "medium_issues": 0,
   "low_issues": 0,
-  "timestamp": "2025-10-24T19:16:45.385824",
+  "timestamp": "2025-10-25T11:19:13.957930",
   "check_results": [
     {
       "rule_name": "no_null_values",
@@ -16,7 +16,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 1000,
+      "total_count": 900,
       "details": {
         "columns_checked": [
           "review_id",
@@ -68,7 +68,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 1000,
+      "total_count": 900,
       "details": {
         "columns_checked": [
           "review_id",
@@ -102,7 +102,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 1000,
+      "total_count": 900,
       "details": {
         "message": "No email columns found"
       }
@@ -114,7 +114,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 1000,
+      "total_count": 900,
       "details": {
         "columns_checked": [
           "review_date",
@@ -137,7 +137,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 1000,
+      "total_count": 900,
       "details": {
         "columns_checked": [
           "rating"
@@ -155,7 +155,7 @@
       "passed": true,
       "pass_rate": 1.0,
       "failed_count": 0,
-      "total_count": 1000,
+      "total_count": 900,
       "details": {
         "type_issues": [],
         "total_issues": 0
@@ -166,9 +166,9 @@
       "check_type": "uniqueness",
       "severity": "critical",
       "passed": "False",
-      "pass_rate": 0.073,
-      "failed_count": "927",
-      "total_count": 1000,
+      "pass_rate": 0.06555555555555556,
+      "failed_count": "841",
+      "total_count": 900,
       "details": {
         "columns_checked": [
           "review_id",
@@ -177,10 +177,10 @@
         ],
         "duplicate_counts": {
           "review_id": "0",
-          "user_id": "801",
-          "product_id": "900"
+          "user_id": "721",
+          "product_id": "810"
         },
-        "total_duplicates": "1701"
+        "total_duplicates": "1531"
       }
     },
     {
@@ -190,7 +190,7 @@
       "passed": "True",
       "pass_rate": 1.0,
       "failed_count": "0",
-      "total_count": 1000,
+      "total_count": 900,
       "details": {
         "columns_checked": [
           "review_date",
@@ -204,7 +204,7 @@
           "created_at": "0",
           "updated_at": "0"
         },
-        "valid_range": "[1900-01-01, 2026-10-24]"
+        "valid_range": "[1900-01-01, 2026-10-25]"
       }
     }
   ]
